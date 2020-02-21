@@ -1,21 +1,39 @@
 
 # Skrylar's Maps and Nimian Cartography
 
-Unlike your typical stdlib map these maps come with the tuning values exposed. You provide the hash function to the map as well, so you can choose when you need a fast hash or a secure hash. You can also provide custom object hashes if you are using very strange keys that need special treatment.
+Unlike your typical stdlib map these maps come with the tuning values
+exposed. You provide the hash function to the map as well, so you can
+choose when you need a fast hash or a secure hash. You can also provide
+custom object hashes if you are using very strange keys that need
+special treatment.
 
 ## Cuckoo Hash
 
-Cuckoo hash maps work by assigning two hashes to a single key: this can be a single larger hash function that is cut in to halves, two separate hashes, the same hash with different salts and so on. Important thing is each entry has two values that are usually not the same.
+WARNING: Cuckoo hashes are *probablistic*. If more than two entries have
+the same hash result then things silently break down.
 
-Values are placed at the position corresponding to its first or second hash. If both spots are taken then one of those space-takers gets evicted from the hotel and moved to its alternate position. That may involve another entry getting evicted which means we have to do it all over again.
+Cuckoo hash maps rely on two hash values for each entry. Items are
+placed at their first location if that is possible, or their second
+position if necessary. Because of this accesses are always O(1).
 
-This implementation's cycle protection is to check if we have evicted the entry that was *just* added, meaning a new map which is twice the size of the current map has to be created (called "rehashing.")
+Hashes can be:
 
-A cuckoo hash has O(1) retrieval and deletion, and insertion has an O(1) best case. The worst case? It... depends.
+ - Two unrelated hash functions,
+ - Two of the same hash functions with different salts, or,
+ - Smaller pieces of one large key.
 
-In the literature, cuckoo maps are sensitive to the hash function used along with them. High quality functions like SpookyHash 2 or MurmurHash 3 should be fine.
+Rehashing is done if an item can not fit at either its first or second
+location.
 
-NOTE: Cuckoo does not have any collision resistance. If you attempt to insert three entries with identical hash 1 and hash 2 values but differing keys (malicious input, since the odds of *three* collisions with a good hash function are astronomical) the result is a shitshow and one of the values is not going to end up stored.
+Cycle protection is implemented to avoid infinite loops. It works by
+stopping insertion if we ever find outself trying to move the element
+just added. In that case insertion is aborted and a rehash is triggered.
+
+Cuckoo maps are very sensitive to the hash function used
+along with them. High quality functions like SpookyHash 2 or MurmurHash
+3 should be fine.
+
+TODO: It should be possible to detect and alert on triple collisions.
 
 ## Dependencies
 
