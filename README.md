@@ -13,6 +13,8 @@ Hopscotch hashes appear whenever Cuckoo hashes are mentioned. Research
 has turned up that Robin Hood hashes are similar but perform better.
 Therefore Hopscotch has not been implemented here.
 
+  - http://codecapsule.com/2013/08/11/hopscotch-hashing/
+
 ## Robin Hood Hashes
 
 Robin Hood maps are similar to the ubiquitous open address maps with
