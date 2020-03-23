@@ -175,15 +175,15 @@ proc del*[K,V](self: var CuckooMap[K,V]; whence: K) =
 
     if self.entries[ap].key == K:
         self.entries[ap].occupied = false
-        self.entries[ap].key      = typeof(self.entries[ap].key).init
-        self.entries[ap].value    = typeof(self.entries[ap].value).init
+        self.entries[ap].key      = default(typeof(self.entries[ap].key))
+        self.entries[ap].value    = default(typeof(self.entries[ap].value))
         dec self.filled
         return
 
     if self.entries[bp].key == K:
         self.entries[bp].occupied = false
-        self.entries[bp].key      = typeof(self.entries[bp].key).init
-        self.entries[bp].value    = typeof(self.entries[bp].value).init
+        self.entries[bp].key      = default(typeof(self.entries[bp].key))
+        self.entries[bp].value    = default(typeof(self.entries[bp].value))
         dec self.filled
         return
 
