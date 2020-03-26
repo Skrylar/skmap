@@ -58,12 +58,12 @@ proc try_get*[K,V](self: CuckooMap[K,V]; whence: K; wot: var V): bool =
     var a, b: CuckooHash
     self.derive_hashes(unsafeaddr whence, whence.sizeof, a, b)
 
-    let am = (a mod self.entries.len.CuckooHash).int
+    let am = (a mod self.entries.high.CuckooHash).int
     if self.entries[am].occupied and (self.entries[am].key == whence):
         wot = self.entries[am].value
         return true
 
-    let bm = (b mod self.entries.len.CuckooHash).int
+    let bm = (b mod self.entries.high.CuckooHash).int
     if self.entries[bm].occupied and (self.entries[bm].key == whence):
         wot = self.entries[bm].value
         return true
@@ -85,7 +85,7 @@ proc put*[K,V](self: var CuckooMap[K,V]; whence: K; wot: V) =
     var a, b: CuckooHash
     self.derive_hashes(unsafeaddr whence, whence.sizeof, a, b)
 
-    let entry_count = self.entries.len
+    let entry_count = self.entries.high
 
     # HOW CUCKOO "PUTS" WORK
     #  - Try to put something at its first or second hash, then
@@ -153,7 +153,7 @@ proc put*[K,V](self: var CuckooMap[K,V]; whence: K; wot: V) =
         if cup.key == whence:
             # !!! we have encountered a cycle and need to rehash
             var replacement: CuckooMap[K,V]
-            init(replacement, max(1, self.entries.len) * 2, self.hash)
+            init(replacement, max(1, self.entries.high) * 2, self.hash)
             for k, v in self.items:
                 replacement.put(k, v)
             self = replacement
@@ -170,8 +170,8 @@ proc del*[K,V](self: var CuckooMap[K,V]; whence: K) =
     var a, b: CuckooHash
     self.derive_hashes(unsafeaddr whence, whence.sizeof, a, b)
 
-    let ap = a mod self.entries.len
-    let bp = b mod self.entries.len
+    let ap = a mod self.entries.high
+    let bp = b mod self.entries.high
 
     if self.entries[ap].key == K:
         self.entries[ap].occupied = false
