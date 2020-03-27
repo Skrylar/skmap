@@ -65,4 +65,17 @@ ok(hashmap[6]      == "staple",  "cell 6")
 ok(hashmap[555999] == "horse",   "cell 555999")
 ok(hashmap[500]    == "battery", "cell 500")
 
+var hashmap2: CuckooMap[string, int]
+hashmap2.init(20, do_the_thing)
+
+hashmap2["ron"] = 1111
+hashmap2["tater"] = 2222
+hashmap2["salad"] = 3333
+hashmap2["white"] = 4444
+
+ok(hashmap2["ron"]   == 1111, "ron")
+ok(hashmap2["tater"] == 2222, "tater")
+ok(hashmap2["salad"] == 3333, "salad")
+ok(hashmap2["white"] == 4444, "white")
+
 echo "1..",tests
