@@ -7,8 +7,8 @@ def task_test():
         yield {
         'name': alg,
         'actions': [
-            'nim c -o:{} -p:../skyhash/src src/skmap/cuckoo'.format(alg),
-            './{} | tappy'.format(alg)],
+            'nim c -o:{0} -p:../skyhash/src src/skmap/{0}'.format(alg),
+            './{0} | tappy'.format(alg)],
         'verbosity': 2,
         'targets': [alg]
         }
