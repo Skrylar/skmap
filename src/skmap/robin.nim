@@ -3,10 +3,10 @@ type
     RobinHoodHash* = uint64
     RobinHoodHashFunction* = proc(data: pointer; datalen: int; a: var RobinHoodHash) {.closure.}
 
-    Infobyte = distinct uint8
-    Distance = range[0..15]
+    Infobyte* = distinct uint8
+    Distance* = range[0..15]
 
-    RobinHoodMapEntry[K,V] = object
+    RobinHoodMapEntry*[K,V] = object
         infobyte: Infobyte
         hash:     RobinHoodHash
         key:      K
@@ -17,23 +17,23 @@ type
         filled:  int
         hash:    RobinHoodHashFunction
 
-proc full(self: Infobyte): bool =
+proc full*(self: Infobyte): bool =
     ## Retrieves whether or not the "full" flag is set, indicating the
     ## map entry contains some data.
     return (self.uint and 0x80) != 0
 
-proc `full=`(self: var Infobyte; neo: bool) =
+proc `full=`*(self: var Infobyte; neo: bool) =
     ## Sets the value of the full flag.
     if neo:
         self = (self.uint or 0x80).Infobyte
     else:
         self = (self.uint and 0x7F).Infobyte
 
-proc distance(self: Infobyte): Distance =
+proc distance*(self: Infobyte): Distance =
     ## Returns the distance of a map entry from its native bucket.
     return (self.int and 0x7F).Distance
 
-proc `distance=`(self: var Infobyte; dist: Distance) =
+proc `distance=`*(self: var Infobyte; dist: Distance) =
     ## Sets the distance of a map entry from its native bucket.
     let fwoof = self.full
     if fwoof:
