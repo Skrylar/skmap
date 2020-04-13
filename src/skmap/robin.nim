@@ -61,7 +61,7 @@ proc init*[K,V](self: var RobinHoodMap[K,V]; initial_length: int; hash: RobinHoo
 
 proc len*[K,V](self: RobinHoodMap[K,V]):int =
     ## Return the number of key/value pairs stored in the map.
-    return self.entries.filled
+    return self.filled
 
 proc derive_hashes[K,V](self: RobinHoodMap[K,V]; input: pointer; inlen: int; a: var RobinHoodHash) =
     ## Machinery to derive both cuckoo hashes from a given input.
