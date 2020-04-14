@@ -251,7 +251,7 @@ proc put*[K,V](self: var RobinHoodMap[K,V]; whence: K; wot: V) =
                 # on rehashing
                 set_len(self.entries, max(self.entries.len * 2, 1))
                 i = 0
-    inc self.filled
+        assert cursor.infobyte.full == false
 
 proc `[]=`*[K,V](self: var RobinHoodMap[K,V]; whence: K; wot: V) {.inline.} =
     ## Puts the given value in the map specificed by the key.
