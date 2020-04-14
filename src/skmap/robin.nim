@@ -179,14 +179,14 @@ proc put*[K,V](self: var RobinHoodMap[K,V]; whence: K; wot: V) =
         template here: untyped = self.entries[ami]
         # TODO check if the distance is in the correct neighborhood (saves some full comparisons)
         if (here.infobyte.full == false) or (here.key == whence):
+            # only increase fill count on legit new item
+            if here.key != whence:
+                inc self.filled
             here.infobyte.full     = true
             here.infobyte.distance = i
             here.hash              = a
             here.key               = whence
             here.value             = wot
-            # only increase fill count on legit new item
-            if here.key != whence:
-                inc self.filled
             return
 
     # Reaching this position means we were not able to find a bucket.
