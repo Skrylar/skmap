@@ -103,20 +103,8 @@ proc find_bucket*[K,V](self: RobinHoodMap[K,V], whence: K; wot: var int): bool =
         wot = am
         return true
 
-    # find a bucket whos distance marker points at `am`
-    var x = -1
-    for i in 0..Distance.high:
-        let ami = (am + i) mod self.entries.high
-        if self.entries[ami].infobyte.full and
-            (self.entries[ami].infobyte.distance == i):
-                x = i
-                break
-
-    # check if we didn't find a starter in this neighborhood
-    if x < 0: return false
-
     # now we have to check the neighborhood for a result
-    for i in x..Distance.high:
+    for i in 0..Distance.high:
         let ami = (am + i) mod self.entries.high
 
         # skip empty cells
