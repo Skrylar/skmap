@@ -84,7 +84,7 @@ iterator keys*[K,V](self: RobinHoodMap[K,V]): K =
     ## Iterates through each key in the map.
     for x in self.entries:
         if not x.infobyte.full: continue
-        yield x.value
+        yield x.key
 
 iterator values*[K,V](self: RobinHoodMap[K,V]): V =
     ## Iterates through each value in the map.
