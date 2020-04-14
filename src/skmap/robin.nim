@@ -231,19 +231,23 @@ proc put*[K,V](self: var RobinHoodMap[K,V]; whence: K; wot: V) =
             block findhome:
                 for i in 0..Distance.high:
                     let ami = (am + i) mod self.entries.high
-                    if self.entries[ami].infobyte.full == false:
+                    template here: untyped = self.entries[ami]
+                    if here.infobyte.full == false:
                         # empty slot; can insert immediately
-                        self.entries[ami] = cursor
-                        self.entries[ami].infobyte.distance = i
+                        here = cursor
+                        here.infobyte.distance = i
                         cursor.infobyte.full = false
                         break findhome
                     else:
                         # filled slot; can only swap if the resident
                         # does not belong there
-                        let dista = abs(i - self.entries[ami].infobyte.distance.int)
-                        if dista > Distance.high:
-                            let temp = self.entries[ami]
-                            self.entries[ami] = cursor
+
+                        let rightful_bucket = (here.hash mod self.entries.high.RobinHoodHash).int
+                        let ra = (ami - here.infobyte.distance) mod self.entries.high
+                        if ra != rightful_bucket:
+                            let temp = here
+                            here = cursor
+                            here.infobyte.distance = i
                             cursor = temp
                             break findhome
                             
