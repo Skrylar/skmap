@@ -184,7 +184,9 @@ proc put*[K,V](self: var RobinHoodMap[K,V]; whence: K; wot: V) =
             here.hash              = a
             here.key               = whence
             here.value             = wot
-            inc self.filled
+            # only increase fill count on legit new item
+            if here.key != whence:
+                inc self.filled
             return
 
     # Reaching this position means we were not able to find a bucket.
