@@ -74,6 +74,12 @@ iterator items*[K,V](self: RobinHoodMap[K,V]): (K, V) =
         if not x.infobyte.full: continue
         yield (x.key, x.value)
 
+iterator raw_items*[K,V](self: seq[RobinHoodMapEntry[K,V]]): RobinHoodMapEntry[K,V] =
+    ## Iterates through each key/value pair in the map.
+    for x in self:
+        if not x.infobyte.full: continue
+        yield x
+
 iterator keys*[K,V](self: RobinHoodMap[K,V]): K =
     ## Iterates through each key in the map.
     for x in self.entries:
