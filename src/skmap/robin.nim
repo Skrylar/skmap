@@ -234,6 +234,7 @@ proc put*[K,V](self: var RobinHoodMap[K,V]; whence: K; wot: V) =
                     if self.entries[ami].infobyte.full == false:
                         # empty slot; can insert immediately
                         self.entries[ami] = cursor
+                        self.entries[ami].infobyte.distance = i
                         cursor.infobyte.full = false
                         break findhome
                     else:
