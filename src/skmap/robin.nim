@@ -207,7 +207,15 @@ proc put*[K,V](self: var RobinHoodMap[K,V]; whence: K; wot: V) =
 
     block rehash:
         set_len(self.entries, max(self.entries.len * 2, 1))
-        var cursor = self.entries[0]
+        var cursor: RobinHoodMapEntry[K,V]
+
+        inc self.filled
+        cursor.infobyte.full     = true
+        cursor.infobyte.distance = 0
+        cursor.hash              = a
+        cursor.key               = whence
+        cursor.value             = wot
+
         var i = 0
         while i < self.entries.len:
             if cursor.infobyte.full == false:
