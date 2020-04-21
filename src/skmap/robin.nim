@@ -115,7 +115,7 @@ proc find_bucket*[K,V](self: RobinHoodMap[K,V], whence: K; wot: var int): bool =
 
         # if we reached the key then we are done
         if self.entries[ami].key == whence:
-            wot = i
+            wot = ami
             return true
 
     return false
@@ -194,56 +194,56 @@ proc put*[K,V](self: var RobinHoodMap[K,V]; whence: K; wot: V) =
     #             cursor with the misfit element
 
     block rehash:
-        set_len(self.entries, max(self.entries.len * 2, 1))
+        var oldmark = self.entries.len
+        var i: int
+        template grow() =
+            i = 0
+            oldmark = self.entries.len
+            set_len(self.entries, max(self.entries.len * 2, 1))
+        grow()
+
         var cursor: RobinHoodMapEntry[K,V]
 
         inc self.filled
         cursor.infobyte.full     = true
-        cursor.infobyte.distance = 0
         cursor.hash              = a
         cursor.key               = whence
         cursor.value             = wot
 
-        var i = 0
-        while i < self.entries.len:
+        while i < oldmark:
+            # lift to cursor
             if cursor.infobyte.full == false:
-                # nothing on the cursor so we take the next element
-                cursor = self.entries[i]
-                self.entries[i].clear
-                inc i
+                if self.entries[i].infobyte.full == false:
+                    inc i
+                    continue
+                else:
+                    cursor = self.entries[i]
+                    self.entries[i].clear
+                    inc i
 
-            # cursor has something so lets find its new native bucket
-            let am = (cursor.hash mod self.entries.high.RobinHoodHash).int
-
-            # see if we can migrate it there
-            block findhome:
+            block dropcursor:
+                let am = (cursor.hash mod self.entries.high.RobinHoodHash).int
                 for i in 0..Distance.high:
+                    # TODO pretty sure we are supposed to bump existing items during this
                     let ami = (am + i) mod self.entries.high
                     template here: untyped = self.entries[ami]
-                    if here.infobyte.full == false:
-                        # empty slot; can insert immediately
-                        here = cursor
-                        here.infobyte.distance = i
-                        cursor.infobyte.full = false
-                        break findhome
+                    # try to place in to a free area
+                    if (here.infobyte.full == false) or
+                        (here.key == cursor.key):
+                            here = cursor
+                            here.infobyte.distance = i
+                            cursor.infobyte.full = false
+                            break dropcursor
                     else:
-                        # filled slot; can only swap if the resident
-                        # does not belong there
-
-                        let rightful_bucket = (here.hash mod self.entries.high.RobinHoodHash).int
-                        let ra = (ami - here.infobyte.distance) mod self.entries.high
-                        if ra != rightful_bucket:
+                        let rightful = (here.hash mod self.entries.high.RobinHoodHash).int
+                        let contender = (ami - here.infobyte.distance.int) mod self.entries.high.int
+                        if rightful != contender:
                             let temp = here
                             here = cursor
                             here.infobyte.distance = i
                             cursor = temp
-                            break findhome
-                            
-                # did not find home; which means we have to double down
-                # on rehashing
-                set_len(self.entries, max(self.entries.len * 2, 1))
-                i = 0
-        assert cursor.infobyte.full == false
+                            break dropcursor
+                grow()
 
 proc `[]=`*[K,V](self: var RobinHoodMap[K,V]; whence: K; wot: V) {.inline.} =
     ## Puts the given value in the map specificed by the key.
