@@ -68,6 +68,16 @@ proc derive_hashes[K,V](self: RobinHoodMap[K,V]; input: pointer; inlen: int; a: 
     assert self.hash != nil
     self.hash(input, inlen, a)
 
+proc derive_hashes[K:string,V](self: RobinHoodMap[K,V]; input: K; a: var RobinHoodHash) =
+    ## Machinery to derive both cuckoo hashes from a given input.
+    assert self.hash != nil
+    self.hash(unsafeaddr input[0], input.len, a)
+
+proc derive_hashes[K,V](self: RobinHoodMap[K,V]; input: K; a: var RobinHoodHash) =
+    ## Machinery to derive both cuckoo hashes from a given input.
+    assert self.hash != nil
+    self.hash(unsafeaddr input, input.sizeof, a)
+
 iterator items*[K,V](self: RobinHoodMap[K,V]): (K, V) =
     ## Iterates through each key/value pair in the map.
     for x in self.entries:
@@ -95,7 +105,7 @@ iterator values*[K,V](self: RobinHoodMap[K,V]): V =
 proc find_bucket*[K,V](self: RobinHoodMap[K,V], whence: K; wot: var int): bool =
     ## Checks if a key with a particular value exists within the map.
     var a: RobinHoodHash
-    self.derive_hashes(unsafeaddr whence, whence.sizeof, a)
+    self.derive_hashes(whence, a)
 
     # check if its stored at its native slot
     let am = (a mod self.entries.high.RobinHoodHash).int
@@ -143,7 +153,7 @@ proc put*[K,V](self: var RobinHoodMap[K,V]; whence: K; wot: V) =
     assert self.entries.len > 0
 
     var a: RobinHoodHash
-    self.derive_hashes(unsafeaddr whence, whence.sizeof, a)
+    self.derive_hashes(whence, a)
 
     # HOW ROBIN “PUTS” WORK
     #
