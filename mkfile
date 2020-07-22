@@ -10,3 +10,6 @@ t/%.t: src/skmap/%.nim
 check:V: $tests
     prove
 
+push:V:
+    git push github
+
